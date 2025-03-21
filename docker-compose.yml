@@ -1,0 +1,41 @@
+version: '3.3'
+
+services:
+  web:
+    build: .
+    container_name: ramailo_container_web
+    command: "newrelic-admin run-program gunicorn -w 2 -b 0.0.0.0:8001 --worker-class gevent --log-level debug project.wsgi:application"
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env.dev
+
+  worker:
+    build: .
+    container_name: ramailo_container_worker
+    command: newrelic-admin run-program celery -A project.celery worker --loglevel=info
+    env_file:
+      - .env.dev
+    depends_on:
+      - web
+
+  beat:
+    build: .
+    container_name: ramailo_container_beat
+    command: newrelic-admin run-program celery -A project beat --loglevel=info
+    env_file:
+      - .env.dev
+    depends_on:
+      - web
+
+  flower:
+    build: .
+    container_name: ramailo_container_flower
+    command: celery -A project.celery flower --address=0.0.0.0 --port=5555 --basic_auth=admin:admin
+    ports:
+      - 5555:5555
+    env_file:
+      - .env.dev
+    depends_on:
+      - worker
+      - web

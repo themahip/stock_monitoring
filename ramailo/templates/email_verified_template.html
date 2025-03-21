@@ -1,0 +1,13 @@
+{% extends 'base_email_template.html' %}
+
+{% block content %}
+<div class="content">
+    <div class="title">Great! your account has been verified!</div>
+    <div class="details">
+        Thanks to this, we’re able to confirm that you’re the one who has signed up for genially and not an alien.
+    </div>
+    <a href="{{link}}" style="text-decoration: none;">
+        <div class="action"><span class="text">Start saving</span></div>
+    </a>
+</div>
+{% endblock %}

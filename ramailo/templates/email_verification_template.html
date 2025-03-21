@@ -1,0 +1,19 @@
+{% extends 'base_email_template.html' %}
+
+{% block content %}
+<div class="content">
+    <div class="title">Thank you for signing up!</div>
+    <div class="details">
+        Before you can start using your account, we need to verify your email address. 
+        This helps us ensure that you have provided us with a valid email address and that you are the owner of the account.
+        To verify your email, please enter the following OTP code in the verification
+        field on {{company_name}} App.
+        <h1>{{otp}}</h1>
+
+        Please note that this otp is only valid for <strong style="color: rgb(225, 27, 27)">5</strong> minutes.<br /><br />
+    </div>
+    <a href="{{link}}" style="text-decoration: none;">
+        <div class="action"><span class="text">Start saving</span></div>
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,284 @@
+version: 2.1
+orbs:
+  slack: circleci/slack@4.9.3
+commands:
+  notify-build:
+    parameters:
+      date:
+        type: string
+        default: <Date>
+      message:
+        type: string
+        default: <Message>
+      project:
+        type: string
+        default: <Project>
+      author:
+        type: string
+        default: <Author>
+      branch:
+        type: string
+        default: <Branch>
+      commit:
+        type: string
+        default: <Commit>
+      url:
+        type: string
+        default: <URL>
+    steps:
+      - slack/notify:
+          event: always
+          channel: ramailo-django-deployment
+          custom: |
+            {
+              "blocks": [
+                  {
+                      "type": "header",
+                      "text": {
+                          "type": "plain_text",
+                          "text": "<< parameters.message >>"
+                      }
+                  },
+                  {
+                      "type": "context",
+                      "elements": [
+                          {
+                              "text": ":calendar: *<< parameters.date >>*  *|*  *<< parameters.project >>*",
+                              "type": "mrkdwn"
+                          }
+                      ]
+                  },
+                  {
+                      "type": "divider"
+                  },
+                  {
+                      "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*Url:*\n<< parameters.url >>"
+                      }
+                  },
+                  {
+                      "type": "section",
+                      "fields": [
+                          {
+                              "type": "mrkdwn",
+                              "text": "*Author:*\n<< parameters.author >>"
+                          },
+                          {
+                              "type": "mrkdwn",
+                              "text": "*Branch:*\n<< parameters.branch >>"
+                          },
+                          {
+                              "type": "mrkdwn",
+                              "text": "*Commit Message:*\n<< parameters.commit >>"
+                          }
+                      ]
+                  }
+              ]
+            }
+  notify-pass:
+    parameters:
+      date:
+        type: string
+        default: <Date>
+      message:
+        type: string
+        default: <Message>
+      project:
+        type: string
+        default: <Project>
+      author:
+        type: string
+        default: <Author>
+      branch:
+        type: string
+        default: <Branch>
+      commit:
+        type: string
+        default: <Commit>
+      url:
+        type: string
+        default: <URL>
+    steps:
+      - slack/notify:
+          event: pass
+          channel: ramailo-django-deployment
+          custom: |
+            {
+              "blocks": [
+                  {
+                      "type": "header",
+                      "text": {
+                          "type": "plain_text",
+                          "text": "<< parameters.message >>"
+                      }
+                  },
+                  {
+                      "type": "context",
+                      "elements": [
+                          {
+                              "text": ":calendar: *<< parameters.date >>*  *|*  << parameters.project >>",
+                              "type": "mrkdwn"
+                          }
+                      ]
+                  },
+                  {
+                      "type": "divider"
+                  },
+                  {
+                      "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*URL:*\n<< parameters.url >>"
+                      }
+                  },
+                  {
+                      "type": "section",
+                      "fields": [
+                          {
+                              "type": "mrkdwn",
+                              "text": "*Author:*\n<< parameters.author >>"
+                          },
+                          {
+                              "type": "mrkdwn",
+                              "text": "*Branch:*\n<< parameters.branch >>"
+                          },
+                          {
+                              "type": "mrkdwn",
+                              "text": "*Commit Message:*\n<< parameters.commit >>"
+                          }
+                      ]
+                  }
+              ]
+            }
+  notify-fail:
+    parameters:
+      date:
+        type: string
+        default: <Date>
+      message:
+        type: string
+        default: <Message>
+      project:
+        type: string
+        default: <Project>
+      author:
+        type: string
+        default: <Author>
+      branch:
+        type: string
+        default: <Branch>
+      commit:
+        type: string
+        default: <Commit>
+      url:
+        type: string
+        default: <URL>
+    steps:
+      - slack/notify:
+          event: fail
+          channel: ramailo-django-deployment
+          custom: |
+            {
+              "blocks": [
+                  {
+                      "type": "header",
+                      "text": {
+                          "type": "plain_text",
+                          "text": "<< parameters.message >>"
+                      }
+                  },
+                  {
+                      "type": "context",
+                      "elements": [
+                          {
+                              "text": ":calendar: *<< parameters.date >>*  *|*  << parameters.project >>",
+                              "type": "mrkdwn"
+                          }
+                      ]
+                  },
+                  {
+                      "type": "divider"
+                  },
+                  {
+                      "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*URL:*\n<< parameters.url >>"
+                      }
+                  },
+                  {
+                      "type": "section",
+                      "fields": [
+                          {
+                              "type": "mrkdwn",
+                              "text": "*Author:*\n<< parameters.author >>"
+                          },
+                          {
+                              "type": "mrkdwn",
+                              "text": "*Branch:*\n<< parameters.branch >>"
+                          },
+                          {
+                              "type": "mrkdwn",
+                              "text": "*Commit Message:*\n<< parameters.commit >>"
+                          }
+                      ]
+                  }
+              ]
+            }
+jobs:
+  notify:
+    machine:
+      enabled: true
+    steps:
+      - checkout
+      - notify-build:
+          author: $(git log -1 --pretty=format:'%an')
+          message: "Build has been initiated for ${PROJECT_NAME}: ${CIRCLE_BRANCH}"
+          project: $PROJECT_NAME
+          date: $(date +'%B %d,%Y %H:%M')
+          url: ${CIRCLE_BUILD_URL}
+          branch: ${CIRCLE_BRANCH}
+          commit: $(git log -1 --pretty=%B)
+  deploy:
+    machine:
+      enabled: true
+    steps:
+      - checkout
+      - run:
+          name: Deploy Over SSH
+          command: >
+            ssh $SSH_USER@$SSH_HOST "sh /home/ubuntu/deployment-scripts/ramailo.sh 'uat'"
+      - notify-fail:
+          author: $(git log -1 --pretty=format:'%an')
+          message: "Build Failed for ${PROJECT_NAME}: ${CIRCLE_BRANCH} (Job: ${CIRCLE_JOB}) :face_with_rolling_eyes: :expressionless:"
+          project: $PROJECT_NAME
+          date: $(date +'%B %d,%Y %H:%M')
+          url: https://app.circleci.com/pipelines/circleci/XAwrkJaPoEKCLAoJ4wnD3m/P3boC1k6QnqQfDHNdLz7BF/<<pipeline.number>>
+          branch: ${CIRCLE_BRANCH}
+          commit: $(git log -1 --pretty=%B)
+      - notify-pass:
+          author: $(git log -1 --pretty=format:'%an')
+          message: "Build Successful for ${PROJECT_NAME}:${CIRCLE_BRANCH} :tada:
+            :clinking_glasses: :raised_hands:"
+          project: $PROJECT_NAME
+          date: $(date +'%B %d,%Y %H:%M')
+          url: ${RAMAILO_APPLICATION_URL}
+          branch: ${CIRCLE_BRANCH}
+          commit: $(git log -1 --pretty=%B)
+workflows:
+  build-and-deploy:
+    jobs:
+      - notify:
+          context: ramailo-aws-context
+          filters:
+            branches:
+              only:
+                - uat
+      - deploy:
+          context: ramailo-aws-context
+          filters:
+            branches:
+              only:
+                - uat

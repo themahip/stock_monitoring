@@ -23,6 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent
 SECRET_KEY = 'Um2ga1-#2secret#p!ezs0^!^o#0'
 TIME_ZONE = 'Asia/Kolkata'
 
+# Alpha Vantage API Key
+ALPHA_VANTAGE_API_KEY = os.environ.get("ALPHA_VANTAGE")
+
+
 # Application definition
 INSTALLED_APPS = [
     'ramailo.apps.RamailoConfig',
@@ -37,6 +41,8 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_simplejwt',
     'django_extensions',
+    'user',
+    'stock',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -93,7 +99,7 @@ if 'test' in sys.argv or 'test_coverage' in sys.argv:
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.environ.get('REDIS_URL', default='redis://localhost:6379/0'),
+        "LOCATION": os.environ.get('REDIS_URL', default='redis://localhost:6379/1'),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -151,7 +157,10 @@ REST_FRAMEWORK = {
     ],
     'EXCEPTION_HANDLER': 'ramailo.error_handling.custom_exception_handler',
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Changed to this
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
     ],
 }
 
@@ -271,8 +280,23 @@ LOGGING = {
 #celery
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+CELERY_ACCEPTY_CONTENT= ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CLERY_RESULT_SERIALIZER = 'json'
+
+
+## Email Configuraton
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT='587'
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER=os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD= os.environ.get("EMAIL_HOST_PASSWORD")
 
 CSRF_TRUSTED_ORIGINS = ["https://ramailo.uat.ramailo.tech"]
+
+##ALPHA_VANTAGE_API_KEY
+ALPHA_VANTAGE_API_KEY = os.environ.get("ALPHA_VANTAGE")
 
 #refer
 REFERRAL_URL = os.environ.get("REFERRAL_URL")
@@ -295,9 +319,9 @@ AWS_DEFAULT_ACL = None
 AWS_S3_VERIFY = True
 
 # aws ses
-EMAIL_BACKEND = 'django_ses.SESBackend'
-AWS_SES_REGION_NAME = os.environ.get("AWS_SES_REGION_NAME")
-AWS_SES_EMAIL = os.environ.get("AWS_SES_EMAIL")
+# EMAIL_BACKEND = 'django_ses.SESBackend'
+# AWS_SES_REGION_NAME = os.environ.get("AWS_SES_REGION_NAME")
+# AWS_SES_EMAIL = os.environ.get("AWS_SES_EMAIL")
 
 #fcm
 FCM_API_KEY = os.environ.get("FCM_API_KEY")
@@ -307,3 +331,13 @@ TESTERS = ["9975319000", "8864208000"]
 
 # Name matching threshold
 NAME_MATCH_THRESHOLD = 70.0
+
+
+# some of the available stocks
+AVAILABLE_STOCKS = [
+    {"symbol": "AAPL", "name": "Apple Inc."},
+    {"symbol": "MSFT", "name": "Microsoft Corporation"},
+    {"symbol": "GOOGL", "name": "Alphabet Inc."},
+    {"symbol": "AMZN", "name": "Amazon.com Inc."},
+    {"symbol": "TSLA", "name": "Tesla Inc."},
+]

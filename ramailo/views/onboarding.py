@@ -68,7 +68,6 @@ class LoginView(TokenObtainPairView):
             return response_builder.result_object(details).success().ok_200().message("OTP Verified").get_response()
         except AttributeError as e:
             logger.exception(f"login post:: exception:: {e}")
-            return response_builder.result_object({'message': "Unable to login"}).fail().internal_error_500().message("Internal Error").get_response()
 
 
 @api_view(['POST'])

@@ -13,7 +13,7 @@ class Stock(BaseStockModel):
     
     def save_price(self, price):
         """sace current price to StockPrice"""
-        StockPrice.objects.create(Stock=self, price= price)
+        StockPrice.objects.create(stock=self, price= price)
         logger.info(f"Price ${price} saved for stock {self.symbol}")
 
 class StockPrice(models.Model):

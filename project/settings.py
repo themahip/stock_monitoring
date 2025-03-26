@@ -157,12 +157,11 @@ REST_FRAMEWORK = {
     ],
     'EXCEPTION_HANDLER': 'ramailo.error_handling.custom_exception_handler',
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Changed to this
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
+        'rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication',
+    ], 
 }
+
+
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=15),
@@ -177,6 +176,7 @@ SIMPLE_JWT = {
     "USER_ID_CLAIM": "id"
 }
 
+AUTH_USER_MODEL= 'user.User'
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'basic': {

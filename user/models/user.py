@@ -1,11 +1,12 @@
 from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 from shared.helpers.logging_helper import logger
 from .base import UserBaseModel
 
 
-class User(UserBaseModel):
+class User(UserBaseModel,AbstractUser):
     username= models.CharField(unique=True)
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=255)

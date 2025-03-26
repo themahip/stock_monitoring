@@ -24,13 +24,14 @@ class StockService:
         """Get price from cache or API"""
         cache_key= f"stock_price_{symbol}"
         price= cache.get(cache_key)
-        
+        print(price)
         if price is None:
             price= StockPriceAccessor.fetch_stock_price(symbol=symbol)
-            if price:
+            if price!=None:
                 cache.set(cache_key, price, StockService.CACHE_TIMEOUT)
             return price
-    
+        return price
+
     @staticmethod 
     def update_stock_prices():
         """Update prices for all stocks"""
@@ -48,11 +49,12 @@ class StockService:
             if price:
                 trigger= user_stock.check_limits(price)
                 if trigger:
-                    StockService.notfy_user(user_stock.user, user_stock.stock, price, trigger)
+                    StockService.notify_user(user_stock.stock, user_stock.user, price, trigger)
     
     @staticmethod
-    def check_and_notify(stock, user, price, trigger):
+    def notify_user(stock, user, price, trigger):
         """Send email notification"""
+        print("why not sending me mail")
         subject= f"Stock Price Alert: {stock.symbol}"
         message= f"Your stock {stock.symbol} ({stock.name}) has {trigger}. Current Price: ${price}"
 

@@ -15,7 +15,7 @@ class StockListView(generics.ListAPIView):
     """View to list all available stocks"""
     serializer_class = StockSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]  # Require token authentication
+    permission_classes = [IsAuthenticated] 
 
     @swagger_auto_schema(responses={200: StockSerializer(many=True)})
     def get(self, request, *args, **kwargs):
@@ -28,12 +28,14 @@ class StockListView(generics.ListAPIView):
             
             # Add current prices to response
             for item in serializer.data:
+                print(item['symbol'])
                 price = StockService.get_or_fetch_stock_price(item['symbol'])
                 item['current_price'] = price
-            
+                
             logger.info(f"User {request.user.email} fetched stock list")
             return response_builder.result_object(serializer.data).success().ok_200().message("Stocks retrieved successfully").get_response()
         except Exception as e:
+            """"""
             logger.error(f"Error fetching stock list for user {request.user.email}: {str(e)}")
             return response_builder.result_object({'error': str(e)}).fail().bad_request_400().message("Failed to retrieve stocks").get_response()
 
@@ -44,10 +46,10 @@ class UserStockListView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]  # Require token authentication
 
     def get_queryset(self):
-        username = getattr(self.request.user, 'username', None)
-        if not username:
+        user_id = getattr(self.request.user, 'user_id', None)
+        if not user_id:
             print("no permission")
-        user = User.objects.get(username=username)
+        user = User.objects.get(id= user_id)
         return UserStock.objects.filter(user=user)
 
     @swagger_auto_schema(responses={200: UserStockSerializer(many=True)})

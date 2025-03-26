@@ -4,12 +4,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from user.models.user import User
 
-
-
-
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
-    refresh['username'] = user.username  # Add username to payload
     return {
         'refresh': str(refresh),
         'access': str(refresh.access_token),

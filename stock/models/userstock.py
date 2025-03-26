@@ -14,6 +14,7 @@ class UserStock(BaseStockModel):
         unique_together=('user', 'stock')
     
     def check_limits(self, current_price):
+        print("reached")
         """Check if price hits limits"""
         if self.upper_limit and current_price >= self.upper_limit:
             return f"reached upper limit of ${self.upper_limit}"

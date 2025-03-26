@@ -8,7 +8,7 @@ from user.models.user import User
 
 class StockSerializer(serializers.ModelSerializer):
     """Serializer for Stock model"""
-    current_price = serializers.SerializerMethodField(read_only=True)
+    current_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Stock
@@ -43,35 +43,13 @@ class UserStockSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, attrs):
-        token_user = self.context['request'].user
-        if not token_user.is_authenticated:
-            raise serializers.ValidationError({"auth": "User not authenticated"})
-        username = getattr(token_user, 'username', None)
-        if not username:
-            raise serializers.ValidationError({"auth": "Username not in token"})
-        user = User.objects.get(username=username)  # Fetch user manually
-        stock = attrs.get('stock')
+        user = self.context['request'].user
+        stock= attrs.get('stock')
         if UserStock.objects.filter(user=user, stock=stock).exists():
             raise serializers.ValidationError({
             'stock_id': 'This stock is already selected by the user'
             })
         attrs['user'] = user  # Add user to validated data
-        return attrs
-        
-        # Ensure stock exists (handled by stock_id field, but adding explicit check)
-        stock = attrs.get('stock')
-        if not Stock.objects.filter(id=stock.id).exists():
-            raise serializers.ValidationError({
-                'stock_id': 'Invalid stock ID'
-            })
-        
-        # Check if user already has this stock
-        user = self.context['request'].user
-        if UserStock.objects.filter(user=user, stock=stock).exists():
-            raise serializers.ValidationError({
-                'stock_id': 'This stock is already selected by the user'
-            })
-        
         return attrs
 
     def get_current_price(self, obj):

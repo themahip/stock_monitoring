@@ -29,8 +29,8 @@ app.conf.broker_transport_options = {
 }
 
 app.conf.beat_schedule = {
-    'execute_ramailo_task_in_every_15_min': {
-        'task': 'execute_ramailo_task',
-        'schedule': 15 * 60   # Run every 15
+    'execute_ramailo_task_in_every_2_min': {
+        'task': 'execute_stock_task',
+        'schedule': 1 * 60   # Run every 2 min
     },
 }

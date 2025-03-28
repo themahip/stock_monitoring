@@ -2,7 +2,7 @@ import threading
 from rest_framework_simplejwt.tokens import AccessToken
 from django.shortcuts import get_object_or_404
 
-from ramailo.models.user import User
+from user.models.user import User
 
 thread_local = threading.local()
 

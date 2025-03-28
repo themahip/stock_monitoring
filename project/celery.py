@@ -18,8 +18,9 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks([
-    "ramailo.tasks.ramailo_tasks"
+    "stock.tasks.stock_tasks"
 ])
+
 
 app.conf.broker_transport_options = {
     'max_retries': 2,
@@ -30,7 +31,7 @@ app.conf.broker_transport_options = {
 
 app.conf.beat_schedule = {
     'execute_ramailo_task_in_every_2_min': {
-        'task': 'execute_ramailo_task',
-        'schedule': 2 * 60   # Run every 2 min
+        'task': 'execute_stock_task',
+        'schedule': 1 * 60   
     },
 }

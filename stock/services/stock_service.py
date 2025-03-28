@@ -18,19 +18,46 @@ class StockService:
                 defaults= {'name':stock_data['name']}
             )
         logger.info("Initialized available stocks")
-    
+
+    @staticmethod
+    def set_cache():
+        """get all stock"""
+        StockService.initialize_stocks()
+        stocks= Stock.objects.all()
+        for stock in stocks:
+            cache_key=f"stock_price_symbol_{stock.symbol}"
+            price= StockPriceAccessor.fetch_stock_price(symbol=stock.symbol)
+            if price!=None:
+                cache.set(cache_key, price, StockService.CACHE_TIMEOUT)     
+
+
+    @staticmethod
+    def get_all_stock_with_prices():
+        """get all the stock"""
+        stocks= Stock.objects.all()
+        stock_list=[]
+        for stock in stocks:
+            stock_list.append({
+                "id":stock.id,
+                "symbol":stock.symbol,
+                "name":stock.name,
+                "created_at":stock.created_at,
+                "current_price":StockService.get_or_fetch_stock_price(stock.symbol)
+            })
+        return stock_list
+   
     @staticmethod
     def get_or_fetch_stock_price(symbol):
         """Get price from cache or API"""
         cache_key= f"stock_price_{symbol}"
-        price= cache.get(cache_key)
-        print(price)
-        if price is None:
-            price= StockPriceAccessor.fetch_stock_price(symbol=symbol)
-            if price!=None:
-                cache.set(cache_key, price, StockService.CACHE_TIMEOUT)
-            return price
+        cached_price= cache.get(cache_key)
+        if cached_price:
+            return cached_price
+        price= StockPriceAccessor.fetch_stock_price(symbol=symbol)
+        if price!=None:
+            cache.set(cache_key, price, StockService.CACHE_TIMEOUT)
         return price
+    
 
     @staticmethod 
     def update_stock_prices():
@@ -40,6 +67,7 @@ class StockService:
             price= StockService.get_or_fetch_stock_price(stock.symbol)
             if price:
                 stock.save_price(price)
+
     @staticmethod
     def check_and_notify():
         """check limits and notify users"""
@@ -54,7 +82,6 @@ class StockService:
     @staticmethod
     def notify_user(stock, user, price, trigger):
         """Send email notification"""
-        print("why not sending me mail")
         subject= f"Stock Price Alert: {stock.symbol}"
         message= f"Your stock {stock.symbol} ({stock.name}) has {trigger}. Current Price: ${price}"
 

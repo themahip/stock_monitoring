@@ -21,6 +21,7 @@ app.autodiscover_tasks([
     "stock.tasks.stock_tasks"
 ])
 
+
 app.conf.broker_transport_options = {
     'max_retries': 2,
     'interval_start': 0,
@@ -31,6 +32,6 @@ app.conf.broker_transport_options = {
 app.conf.beat_schedule = {
     'execute_ramailo_task_in_every_2_min': {
         'task': 'execute_stock_task',
-        'schedule': 1 * 60   # Run every 2 min
+        'schedule': 1 * 60   
     },
 }

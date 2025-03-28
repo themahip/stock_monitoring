@@ -8,21 +8,51 @@ from user.models.user import User
 
 class StockSerializer(serializers.ModelSerializer):
     """Serializer for Stock model"""
-    current_price = serializers.SerializerMethodField()
-
     class Meta:
         model = Stock
-        fields = ['id', 'symbol', 'name', 'created_at', 'current_price']
+        fields=['id', 'symbol', 'name', 'created_at']
+
+class StockDetailSerializer(serializers.ModelSerializer):
+    """Serializer for stock model with user input upper and lower limit"""
+    upper_limit= serializers.SerializerMethodField(read_only=True)
+    lower_limit= serializers.SerializerMethodField(read_only=True)
+    current_price= serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model= Stock
+        fields=['id', 'symbol', 'name', 'created_at', 'current_price', 'lower_limit', 'upper_limit']
 
     def get_current_price(self, obj):
-        """Get current price from StockService"""
         try:
-            price = StockService.get_or_fetch_stock_price(obj.symbol)
+            price= StockService.get_or_fetch_stock_price(symbol=obj.symbol)
             return price
         except Exception as e:
-            logger.error(f"Error fetching price for {obj.symbol}: {str(e)}")
-            return None
+            logger.error(f"error fetching price for {obj.symbol}:{str(e)}")
+    
+    def get_upper_limit(self,obj):
+        user = self.context.get('user')
+        if user:
+            try:
+                user_stock= UserStock.objects.get(user=user, stock=obj)
+                return user_stock.upper_limit
+            except UserStock.DoesNotExist:
+                return None
 
+        return None
+
+    def get_lower_limit(self,obj):
+        user = self.context.get('user')
+        if user:
+            try:
+                user_stock= UserStock.objects.get(user=user, stock= obj)
+                return user_stock.lower_limit
+            except UserStock.DoesNotExist:
+                return None
+        return None
+
+    
+
+    
 class UserStockSerializer(serializers.ModelSerializer):
     """Serializer for UserStock model"""
     stock = StockSerializer(read_only=True)

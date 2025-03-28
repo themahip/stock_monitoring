@@ -29,8 +29,6 @@ class StockPriceAccessor:
             latest_time= sorted(time_series.keys())[0]
             price= Decimal(time_series[latest_time]['4. close'])
             logger.info(f"Fetched price ${price} for {symbol}")
-            print(price)
-            print(type(price))
             return price
         except Exception as e:
             logger.error(f"Error fetching price for {symbol}:{str(e)}")

@@ -39,14 +39,12 @@ class AuthService:
             user = User.objects.get(email=email)
             if user.authenticate_user(password):
                 tokens = generate_token(user=user)
-                print("hello")
                 result = {
                     "user_id": user.id,
                     "email": user.email,
                     "username": user.username,
                     **tokens
                 }
-                print(tokens)
                 logger.info(f"User {email} logged in successfully")
                 return user, True, result
             else:
